@@ -1,24 +1,32 @@
 // src/callbackVersion.ts
 import axios, { AxiosResponse } from 'axios';
 import { WeatherData, NewsData } from './types';
+import * as dotenv from 'dotenv';
 
-// Simulate weather data parsing
+dotenv.config();
+const API_KEY = '056eabac7ae706b64eb151e2a617bb1d';
+
+// Parse OpenWeatherMap response
 const parseWeatherData = (data: any): WeatherData => ({
-  temperature: data.current.temperature_2m,
-  description: data.current.weathercode === 0 ? 'Clear' : 'Cloudy'
+  temperature: data.main.temp,
+  description: data.weather[0].description
 });
 
-// Simulate news data parsing
+// Parse DummyJSON response
 const parseNewsData = (data: any): NewsData[] => data.posts;
 
-// Callback-based fetching
+// Callback-based weather fetch
 function fetchWeatherCallback(
   latitude: number,
   longitude: number,
   callback: (error: string | null, data?: WeatherData) => void
 ) {
+  if (!API_KEY) {
+    callback('Error: OpenWeatherMap API key is missing');
+    return;
+  }
   axios
-    .get(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,weathercode`)
+    .get(`https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${API_KEY}&units=metric`)
     .then((response: AxiosResponse) => {
       const weather = parseWeatherData(response.data);
       callback(null, weather);
@@ -36,7 +44,7 @@ function fetchNewsCallback(callback: (error: string | null, data?: NewsData[]) =
     .catch((error) => callback(`News fetch error: ${error.message}`));
 }
 
-// Main callback function demonstrating callback hell
+// Main callback function
 function displayDashboardCallback(latitude: number, longitude: number) {
   console.log('Callback Version:');
   fetchWeatherCallback(latitude, longitude, (weatherError, weatherData) => {
@@ -56,5 +64,5 @@ function displayDashboardCallback(latitude: number, longitude: number) {
   });
 }
 
-// Run the callback version
-displayDashboardCallback(52.52, 13.41); // Example: Berlin coordinates
+// Run callback version
+displayDashboardCallback(52.52, 13.41); // Berlin coordinates
