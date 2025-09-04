@@ -4,7 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "callback": "ts-node src/callbackVersion.ts",
+    "promise": "ts-node src/promiseVersion.ts",
+    "async": "ts-node src/asyncAwaitVersion.ts",
+    "build": "tsc",
+    "start": "node dist/asyncAwaitVersion.js"
   },
   "keywords": [],
   "author": "",
