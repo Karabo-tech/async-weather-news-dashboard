@@ -1,18 +1,25 @@
 // src/asyncAwaitVersion.ts
 import axios, { AxiosResponse } from 'axios';
 import { WeatherData, NewsData } from './types';
+import * as dotenv from 'dotenv';
+
+dotenv.config();
+const API_KEY = '056eabac7ae706b64eb151e2a617bb1d';
 
 const parseWeatherData = (data: any): WeatherData => ({
-  temperature: data.current.temperature_2m,
-  description: data.current.weathercode === 0 ? 'Clear' : 'Cloudy'
+  temperature: data.main.temp,
+  description: data.weather[0].description
 });
 
 const parseNewsData = (data: any): NewsData[] => data.posts;
 
 async function fetchWeatherAsync(latitude: number, longitude: number): Promise<WeatherData> {
   try {
+    if (!API_KEY) {
+      throw new Error('OpenWeatherMap API key is missing');
+    }
     const response: AxiosResponse = await axios.get(
-      `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,weathercode`
+      `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${API_KEY}&units=metric`
     );
     return parseWeatherData(response.data);
   } catch (error: any) {
